@@ -21,6 +21,7 @@ local AimbotTab = Window:CreateTab("Aimbot")
 -- Services
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
 
@@ -86,3 +87,29 @@ AimbotTab:CreateToggle({
         aimbotEnabled = Value
     end
 })
+
+-- Input handling for keybinds
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+
+    -- Toggle aimbot with Q key
+    if input.KeyCode == Enum.KeyCode.Q then
+        aimbotEnabled = not aimbotEnabled
+        Rayfield:Notify({
+            Title = "Aimbot Toggled",
+            Content = "Aimbot is now " .. (aimbotEnabled and "Enabled" or "Disabled"),
+            Duration = 2
+        })
+    end
+
+    -- Toggle aimbot with Left D-Pad on gamepad
+    if input.KeyCode == Enum.KeyCode.DPadLeft then
+        aimbotEnabled = not aimbotEnabled
+        Rayfield:Notify({
+            Title = "Aimbot Toggled",
+            Content = "Aimbot is now " .. (aimbotEnabled and "Enabled" or "Disabled"),
+            Duration = 2
+        })
+    end
+end)
+
