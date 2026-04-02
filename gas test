@@ -1,66 +1,47 @@
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.Timer;
-import java.util.TimerTask;
+-- Complete Roblox Baseball Auto-Swing Script
 
-public class AutoSwing {  
-    private JButton button;  
-    private JFrame frame;  
-    private Timer timer;  
-    private boolean isSwinging = false;  
+local replicatedStorage = game:GetService('ReplicatedStorage')
+local players = game:GetService('Players')
+local player = players.LocalPlayer
+local UIS = game:GetService('UserInputService')
+local RemoteEvent = replicatedStorage:WaitForChild('AutoSwingEvent')
 
-    public AutoSwing() {  
-        frame = new JFrame("Auto Swing Example");  
-        button = new JButton("Start Swinging");  
-        JButton unloadButton = new JButton("Unload");  
-        button.addActionListener(new ActionListener() {  
-            public void actionPerformed(ActionEvent e) {  
-                startSwinging();  
-            }  
-        });  
+-- Variables
+local perfectTimingThreshold = 0.1 -- adjust this value based on testing results
+local isSwinging = false
+local timingCalculation = 0
 
-        unloadButton.addActionListener(new ActionListener() {  
-            public void actionPerformed(ActionEvent e) {  
-                stopSwinging();  
-                JOptionPane.showMessageDialog(frame, "Unloaded Successfully!");  
-            }  
-        });  
+-- Temporary UI
+local screenGui = Instance.new('ScreenGui', player:WaitForChild('PlayerGui'))
+local unloadButton = Instance.new('TextButton')
 
-        frame.setLayout(new FlowLayout());  
-        frame.add(button);  
-        frame.add(unloadButton);  
-        frame.setSize(300, 100);  
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  
-        frame.setVisible(true);  
-    }  
+unloadButton.Size = UDim2.new(0, 200, 0, 50)
+unloadButton.Position = UDim2.new(0.5, -100, 0.5, -25)
+unloadButton.Text = 'Unload Script'
+unloadButton.Parent = screenGui
 
-    private void startSwinging() {  
-        if (!isSwinging) {  
-            isSwinging = true;  
-            timer = new Timer();  
-            timer.schedule(new TimerTask() {  
-                @Override  
-                public void run() {  
-                    // Auto-swing logic here  
-                    System.out.println("Swinging...");  
-                }  
-            }, 0, 1000);  // Interval set to 1000ms (1 second)  
-        }  
-    }  
+unloadButton.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+    isSwinging = false
+end)
 
-    private void stopSwinging() {  
-        if (isSwinging) {  
-            isSwinging = false;  
-            timer.cancel();  
-        }  
-    }  
+-- Frame-Perfect Swing Detection
+function onPitchedBall() 
+    local currentTime = tick()
+    if not isSwinging then
+        timingCalculation = currentTime
+        isSwinging = true
+    else
+        local swingTiming = currentTime - timingCalculation
+        if swingTiming <= perfectTimingThreshold then
+            RemoteEvent:FireServer('Swing')
+        end
+        isSwinging = false
+    end
+end
 
-    public static void main(String[] args) {  
-        SwingUtilities.invokeLater(new Runnable() {  
-            public void run() {  
-                new AutoSwing();  
-            }  
-        });  
-    }  
-}  
+-- Connect to the event for pitched ball (you might need to setup your game event properly)
+replicatedStorage.PitchedBall.Event:Connect(onPitchedBall) 
+
+-- Notes:
+-- Adjust timingThreshold for best results based on gameplay experience.
