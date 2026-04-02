@@ -1,1 +1,66 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.Timer;
+import java.util.TimerTask;
 
+public class AutoSwing {  
+    private JButton button;  
+    private JFrame frame;  
+    private Timer timer;  
+    private boolean isSwinging = false;  
+
+    public AutoSwing() {  
+        frame = new JFrame("Auto Swing Example");  
+        button = new JButton("Start Swinging");  
+        JButton unloadButton = new JButton("Unload");  
+        button.addActionListener(new ActionListener() {  
+            public void actionPerformed(ActionEvent e) {  
+                startSwinging();  
+            }  
+        });  
+
+        unloadButton.addActionListener(new ActionListener() {  
+            public void actionPerformed(ActionEvent e) {  
+                stopSwinging();  
+                JOptionPane.showMessageDialog(frame, "Unloaded Successfully!");  
+            }  
+        });  
+
+        frame.setLayout(new FlowLayout());  
+        frame.add(button);  
+        frame.add(unloadButton);  
+        frame.setSize(300, 100);  
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  
+        frame.setVisible(true);  
+    }  
+
+    private void startSwinging() {  
+        if (!isSwinging) {  
+            isSwinging = true;  
+            timer = new Timer();  
+            timer.schedule(new TimerTask() {  
+                @Override  
+                public void run() {  
+                    // Auto-swing logic here  
+                    System.out.println("Swinging...");  
+                }  
+            }, 0, 1000);  // Interval set to 1000ms (1 second)  
+        }  
+    }  
+
+    private void stopSwinging() {  
+        if (isSwinging) {  
+            isSwinging = false;  
+            timer.cancel();  
+        }  
+    }  
+
+    public static void main(String[] args) {  
+        SwingUtilities.invokeLater(new Runnable() {  
+            public void run() {  
+                new AutoSwing();  
+            }  
+        });  
+    }  
+}  
